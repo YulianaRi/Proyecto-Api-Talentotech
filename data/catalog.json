@@ -1,0 +1,38 @@
+{
+  "products": [
+    {
+      "id": 1,
+      "name": "Notebook",
+      "price": 900000,
+      "categoryId": 1
+    },
+    {
+      "id": 2,
+      "name": "Mouse",
+      "price": 25000,
+      "categoryId": 2
+    },
+    {
+      "id": 3,
+      "name": "Teclado",
+      "price": 50000,
+      "categoryId": 2
+    },
+    {
+      "id": 4,
+      "name": "Parlante",
+      "price": 25000,
+      "categoryId": 1
+    }
+  ],
+  "categories": [
+    {
+      "id": 1,
+      "name": "Computación"
+    },
+    {
+      "id": 2,
+      "name": "Periféricos"
+    }
+  ]
+}
