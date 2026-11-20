@@ -1,17 +1,21 @@
 import { Router } from "express";
+import { authenticate } from "../middlewares/auth.middleware.js";
 import { 
   getProducts, 
   getProductById, 
   createProduct, 
+  updateProduct,
   deleteProduct 
 } from "../controllers/products.controller.js";
 
 const router = Router();
 
-// Rutas conectadas al controlador
+
 router.get("/", getProducts);
 router.get("/:id", getProductById);
-router.post("/create", createProduct);
-router.delete("/:id", deleteProduct);
+
+router.put("/:id", authenticate, updateProduct);
+router.delete("/:id", authenticate, deleteProduct);
+router.post("/", authenticate, createProduct); // Ruta protegida para crear productos
 
 export default router;

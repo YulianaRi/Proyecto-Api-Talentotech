@@ -1,63 +1,84 @@
-import fs from "fs/promises";
-import path from "path";
+import {
+  collection,
+  addDoc,
+  getDoc,
+  getDocs,
+  doc,
+  updateDoc,
+  deleteDoc,
+} from "firebase/firestore";
+import { db } from "../config/firebase.js";
 
-// Ruta hacia el archivo catalog.json
-const filePath = path.resolve("data/catalog.json");
+const productsCollection = collection(db, "products");
 
-// Función auxiliar para leer el catálogo
-const readCatalog = async () => {
-  try {
-    const data = await fs.readFile(filePath, "utf-8");
-    return JSON.parse(data);
-  } catch (error) {
-    return { products: [], categories: [] };
-  }
-};
-
-// Función auxiliar para escribir en el catálogo
-const writeCatalog = async (data) => {
-  await fs.writeFile(filePath, JSON.stringify(data, null, 2), "utf-8");
-};
-
-// 1. Obtener todos (con soporte para filtrar por categoría si se pasa)
+// Obtener todos los productos 
 export const findAll = async (categoryId) => {
-  const catalog = await readCatalog();
+  const snapshot = await getDocs(productsCollection);
+  const products = snapshot.docs.map((item) => ({
+    id: item.id,
+    ...item.data(),
+  }));
+
   if (!categoryId) {
-    return catalog.products;
+    return products;
   }
-  return catalog.products.filter(p => p.categoryId === parseInt(categoryId));
+
+  return products.filter((p) => Number(p.categoryId) === Number(categoryId));
 };
 
-// 2. Buscar por ID
+// Buscar por ID
 export const findById = async (id) => {
-  const catalog = await readCatalog();
-  return catalog.products.find(p => p.id === parseInt(id));
-};
+  const docRef = doc(productsCollection, id);
+  const docSnap = await getDoc(docRef);
 
-// 3. Crear un producto
-export const create = async (productData) => {
-  const catalog = await readCatalog();
-  const newProduct = {
-    id: catalog.products.length > 0 ? catalog.products[catalog.products.length - 1].id + 1 : 1,
-    ...productData
-  };
-  
-  catalog.products.push(newProduct);
-  await writeCatalog(catalog);
-  return newProduct;
-};
-
-// 4. Eliminar un producto (tal como muestra tu última captura)
-export const remove = async (id) => {
-  const catalog = await readCatalog();
-  const index = catalog.products.findIndex((p) => p.id === parseInt(id));
-
-  if (index === -1) {
+  if (!docSnap.exists()) {
     return null;
   }
 
-  const [removedProduct] = catalog.products.splice(index, 1);
-  await writeCatalog(catalog);
+  return { id: docSnap.id, ...docSnap.data() };
+};
 
-  return removedProduct;
+// Crear un producto
+export const create = async (productData) => {
+  const docRef = await addDoc(productsCollection, productData);
+
+  return {
+    id: docRef.id,
+    ...productData,
+  };
+};
+
+// Actualizar un producto
+export const update = async (id, productData) => {
+  const docRef = doc(productsCollection, id);
+  const docSnap = await getDoc(docRef);
+
+  if (!docSnap.exists()) {
+    return null;
+  }
+
+  await updateDoc(docRef, productData);
+
+  return {
+    id: docSnap.id,
+    ...productData,
+  };
+};
+
+// Eliminar un producto
+export const remove = async (id) => {
+  const docRef = doc(productsCollection, id);
+  const docSnap = await getDoc(docRef);
+
+  if (!docSnap.exists()) {
+    return null;
+  }
+
+  const deletedData = docSnap.data();
+  await deleteDoc(docRef);
+
+  return {
+    id: docSnap.id,
+    ...deletedData,
+  };
 };

@@ -2,13 +2,13 @@
   "products": [
     {
       "id": 1,
-      "name": "Notebook",
-      "price": 900000,
+      "name": "Notebook Lenovo",
+      "price": 950000,
       "categoryId": 1
     },
     {
       "id": 2,
-      "name": "Mouse",
+      "name": "Mouse Pro",
       "price": 25000,
       "categoryId": 2
     },
