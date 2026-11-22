@@ -33,29 +33,34 @@ export const register = async (req, res) => {
 };
 
 export const login = async (req, res) => {
-  const { email, password } = req.body || {};
+  try {
+    const { email, password } = req.body || {};
 
-  if (typeof email !== "string" || !email.trim()) {
-    return res.status(400).send("Invalid email or password 1");
+    if (typeof email !== "string" || !email.trim() || typeof password !== "string" || !password) {
+      return res.status(400).json({ error: "Email y contraseña son obligatorios" });
+    }
+
+    const user = await findByEmail(email);
+
+    if (!user) {
+      return res.status(401).json({ error: "Credenciales inválidas" });
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+
+    if (!isPasswordValid) {
+      return res.status(401).json({ error: "Credenciales inválidas" });
+    }
+
+    const token = jwt.sign(
+      { id: user.id, email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: "1h" },
+    );
+
+    res.json({ token });
+  } catch (error) {
+    console.error("Error en login:", error);
+    res.status(500).json({ error: "Error al iniciar sesión" });
   }
-
-  const user = await findByEmail(email);
-
-  if (!user || typeof password !== "string" || !password) {
-    return res.status(400).send("Invalid email or password 2");
-  }
-
-  const isPasswordValid = await bcrypt.compare(password, user.password);
-
-  if (!isPasswordValid) {
-    return res.status(400).send("Invalid email or password 3");
-  }
-
-  const token = jwt.sign(
-    { id: user.id, email: user.email },
-    process.env.JWT_SECRET,
-    { expiresIn: "1h" },
-  );
-
-  res.send({ token });
 };

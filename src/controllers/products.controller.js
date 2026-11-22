@@ -43,6 +43,10 @@ export const createProduct = async (req, res) => {
       return res.status(422).json({ error: "Faltan datos del producto" });
     }
 
+        if (typeof name !== "string" || !name.trim() || isNaN(Number(price)) || Number(price) <= 0) {
+      return res.status(400).json({ error: "Nombre o precio inválido" });
+    }
+
     const newProduct = await productModel.create({
       name,
       price: Number(price),

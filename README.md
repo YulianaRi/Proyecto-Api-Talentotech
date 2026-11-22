@@ -22,3 +22,45 @@ Este es un proyecto de práctica desarrollado con Node.js y Express donde armé 
 1. Clonar el repositorio e instalar las dependencias:
    ```bash
    npm install
+   2. Crear un archivo `.env` en la raíz del proyecto, copiando las variables de `.env.example`, y completarlo con los datos de tu proyecto de Firebase y un `JWT_SECRET` propio.
+
+3. Levantar el servidor:
+   ```bash
+   npm run dev
+   ```
+   El servidor corre en `http://localhost:3000`.
+
+## Rutas de la API
+
+### Autenticación
+
+| Método | Ruta | Descripción |
+|---|---|---|
+| POST | `/auth/register` | Registra un usuario nuevo |
+| POST | `/auth/login` | Inicia sesión y devuelve un token |
+
+### Productos
+
+| Método | Ruta | ¿Requiere token? | Descripción |
+|---|---|---|---|
+| GET | `/api/products` | No | Lista todos los productos |
+| GET | `/api/products/:id` | No | Devuelve un producto por ID |
+| POST | `/api/products/create` | Sí | Crea un producto |
+| DELETE | `/api/products/:id` | Sí | Elimina un producto |
+
+Para las rutas protegidas hay que enviar el token en el header:
+`Authorization: Bearer TU_TOKEN`
+
+## Ejemplo para crear un producto
+
+```json
+{ "name": "Mouse", "price": 15000, "categoryId": 1 }
+```
+
+## Códigos de error
+
+- 400: datos inválidos
+- 401: sin token o credenciales incorrectas
+- 403: token inválido o vencido
+- 404: ruta o producto no encontrado
+- 500: error del servidor o de Firebase
